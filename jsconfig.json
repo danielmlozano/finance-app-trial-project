@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "module": "es2020",
+        "moduleResolution": "node",
+        "target": "es2020",
+        "sourceMap": true,
+        "baseUrl": "resources/js",
+        "paths": {
+            "@/": [
+                "*"
+            ]
+        }
+    },
+    "include": [
+        "resources/js/**/*"
+    ]
+}
