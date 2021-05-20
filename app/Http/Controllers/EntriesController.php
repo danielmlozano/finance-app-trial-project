@@ -18,8 +18,16 @@ class EntriesController extends Controller
     {
         $user = $request->user();
         $entries = $user->entries()->orderBy('date', 'desc')->get();
+        $entries = $entries->groupBy(
+            fn ($entry) => $entry->date->format('Y-m-d')
+        )->map(
+            fn ($entries_group) => [
+                'subtotal' => $entries_group->reduce(fn ($carry, $item) => $carry + $item->amount),
+                'subentries' => $entries_group->toArray(),
+            ]
+        );
         $total = $user->entries()->sum('amount');
-        return response()->json(['entries' => $entries, 'total' => $total]);
+        return response()->json(compact('entries', 'total'));
     }
 
     /**

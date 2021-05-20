@@ -5,10 +5,10 @@
 		<div class="flex items-center">
 			<div class="flex-grow">
 				<div class="font-bold">
-					Groceries
+					{{ data.label }}
 				</div>
 				<div class="text-xs text-gray-500">
-					20 May, 2020 at 10:55 PM
+					{{ data.date | toFriendlyDate }}
 				</div>
 			</div>
 			<div class="actions flex flex-row mr-10">
@@ -27,16 +27,19 @@
 					Delete
 				</button>
 			</div>
-			<div class="text-lg font-bold">
-				- $60.<span class="text-sm">00</span>
+			<div class="text-lg font-bold" :class="amountClass">
+				<span v-if="data.amount >= 0">+</span>
+				{{ data.amount | toCurrency }}
 			</div>
 		</div>
 
 		<entry-form
 			:entry="data"
 			class="my-5"
+			action="update"
 			v-if="editing"
 			@cancel="editing = false"
+			@success="updated"
 		/>
 		<confirmation-modal :show="deleting" :closeable="true">
 			<template #title>
@@ -57,6 +60,7 @@
 </template>
 
 <script>
+import EntryManager from "@/managers/entry";
 import EntryForm from "./EntryForm.vue";
 import {
 	AppButton,
@@ -78,8 +82,22 @@ export default {
 		};
 	},
 	methods: {
-		deleteEntry() {
-			//
+		async deleteEntry() {
+			try {
+				await EntryManager.deleteEntry(this.data.id);
+				this.$emit("refresh");
+			} catch (e) {
+				console.error(e);
+			}
+		},
+		updated() {
+			this.editing = false;
+			this.$emit("refresh");
+		},
+	},
+	computed: {
+		amountClass() {
+			return this.data.amount >= 0 ? "text-green-500" : "";
 		},
 	},
 	components: {

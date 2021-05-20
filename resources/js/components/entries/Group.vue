@@ -4,35 +4,30 @@
 			<span
 				class="flex-grow text-gray-500 font-bold text-sm uppercase tracking-tight"
 			>
-				Today
+				{{ data.date | toFriendlyDate }}
 			</span>
-			<span class="text-lg text-gray-500 font-bold"
-				>- $50.<span class="text-sm">00</span></span
-			>
+			<span class="text-lg text-gray-500 font-bold">
+				<span class="text-lg text-gray-500 font-bold">
+					{{ subtotal.amount }}.<span class="text-sm">{{
+						subtotal.cents
+					}}</span>
+				</span>
+			</span>
 		</div>
 
 		<div>
-			<entry :data="{}" />
-			<!-- <div
-				class="flex items-center mb-4 px-4 py-2 shadow-md bg-white rounded-md"
-			>
-				<div class="flex-grow">
-					<div class="font-bold">
-						Lottery Win
-					</div>
-					<div class="text-xs text-gray-500">
-						20 May, 2020 at 09:05 AM
-					</div>
-				</div>
-				<div class="text-lg font-bold text-green-500">
-					+ $10.<span class="text-sm">00</span>
-				</div>
-			</div> -->
+			<entry
+				v-for="entry in data.subEntries"
+				:key="entry.id"
+				:data="entry"
+				@refresh="$emit('refresh')"
+			/>
 		</div>
 	</div>
 </template>
 
 <script>
+import { toCurrency } from "@/utils";
 import Entry from "./Entry.vue";
 
 export default {
@@ -40,9 +35,18 @@ export default {
 		Entry,
 	},
 	props: {
-		entries: {
+		data: {
 			required: true,
-			type: Array,
+			type: Object,
+		},
+	},
+	computed: {
+		subtotal() {
+			const subtotal = toCurrency(this.data.subtotal).split(".");
+			return {
+				amount: subtotal[0],
+				cents: subtotal[1] || "00",
+			};
 		},
 	},
 };

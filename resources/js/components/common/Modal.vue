@@ -32,7 +32,7 @@
 			>
 				<div
 					v-show="show"
-					class="mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:mx-auto p-8"
+					class="mb-6 bg-white rounded-lg overflow-x-hidden overflow-y-scroll shadow-xl transform transition-all sm:w-full sm:mx-auto p-8"
 					:class="maxWidthClass"
 				>
 					<slot v-if="show"></slot>

@@ -31,7 +31,7 @@
 					class="flex items-center font-bold text-sm text-gray-500"
 				>
 					<img src="/images/avatar.png" class="w-8 mx-4" />
-					Molly Green
+					{{ user.name || "" }}
 				</a>
 			</div>
 		</div>
@@ -39,7 +39,24 @@
 </template>
 
 <script>
-export default {};
+import AccountManager from "@/managers/account";
+
+export default {
+	data() {
+		return {
+			user: {},
+		};
+	},
+	methods: {
+		async getUser() {
+			const response = await AccountManager.me();
+			this.user = response.user;
+		},
+	},
+	async mounted() {
+		await this.getUser();
+	},
+};
 </script>
 
 <style></style>

@@ -22,6 +22,16 @@ class Entry extends Model
     ];
 
     /**
+     * Convert to propper data types
+     *
+     * @var array
+     */
+    protected $casts = [
+        'date' => 'date',
+    ];
+
+
+    /**
      * Return the user related model
      *
      * @return BelongsTo
