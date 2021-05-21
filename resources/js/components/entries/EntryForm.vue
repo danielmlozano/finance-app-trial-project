@@ -97,7 +97,7 @@ export default {
 						this.model,
 					);
 				}
-				this.$emit("success");
+				this.$emit("success", this.model);
 			} catch (e) {
 				console.error(e.message);
 				Object.values(e.errors).forEach(errors => {

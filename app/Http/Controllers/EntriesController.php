@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\EntryRequest;
+use App\Http\Requests\ImportRequest;
+use App\Jobs\ProcessCsv;
 use App\Models\Entry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use SplFileInfo;
 
 class EntriesController extends Controller
 {
@@ -17,8 +20,8 @@ class EntriesController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $entries = $user->entries()->orderBy('date', 'desc')->get();
-        $entries = $entries->groupBy(
+        $entries = $user->entries()->orderBy('date', 'desc')->simplePaginate(20);
+        $grouped_data = $entries->getCollection()->groupBy(
             fn ($entry) => $entry->date->format('Y-m-d')
         )->map(
             fn ($entries_group) => [
@@ -26,6 +29,8 @@ class EntriesController extends Controller
                 'subentries' => $entries_group->toArray(),
             ]
         );
+        $entries = $entries->toArray();
+        $entries['data'] = $grouped_data;
         $total = $user->entries()->sum('amount');
         return response()->json(compact('entries', 'total'));
     }
@@ -103,5 +108,32 @@ class EntriesController extends Controller
             }
         }
         abort(403);
+    }
+
+    /**
+     * Upload a CSV file
+     *
+     * @param ImportRequest $request
+     * @return \Illuminate\Http\Response
+     */
+    public function importCsv(ImportRequest $request)
+    {
+        try {
+            $file = DB::transaction(function () use ($request) {
+                $uploadedFile = $request->file('file');
+                $file = new \SplFileObject($uploadedFile->getPathName(), 'r');
+                $file->seek(PHP_INT_MAX);
+                $user = $request->user();
+                $path = $uploadedFile->store('csv');
+                $process = $user->csvs()->create(['filepath' => $path]);
+                ProcessCsv::dispatch($process);
+                return $file;
+            });
+
+            return response()->json(['imported_rows' => $file->key()], 201);
+        } catch (\Exception $e) {
+            \Log::error($e);
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }
