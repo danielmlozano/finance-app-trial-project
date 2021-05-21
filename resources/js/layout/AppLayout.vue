@@ -1,6 +1,6 @@
 <template>
-	<div>
-		<app-header />
+	<div id="finance-app">
+		<app-header @user="setUser" />
 		<div class="mb-12 py-6 bg-gray-800">
 			<div class="container mx-auto flex px-8">
 				<div class="my-auto text-white flex flex-grow items-center">
@@ -9,10 +9,16 @@
 					</h1>
 
 					<div class="flex flex-row">
-						<app-button @click.native="addNewEntry">
+						<app-button
+							@click.native="addNewEntry"
+							:disabled="csvImport.rows > 0"
+						>
 							Add entry
 						</app-button>
-						<app-button :disabled="true">
+						<app-button
+							:disabled="csvImport.rows > 0"
+							@click.native="showCsvImport = true"
+						>
 							Import csv
 						</app-button>
 					</div>
@@ -31,8 +37,25 @@
 		</div>
 
 		<div class="container mx-auto px-8">
-			<entries v-if="!loading" :data="entries" @refresh="getData()" />
-			<spinner v-else class="mx-auto mt-5" />
+			<alert
+				class="my-4"
+				type="warning"
+				:spinner="true"
+				v-if="csvImport.rows > 0"
+				>We're importing {{ csvImport.rows }} balance entries. Sit
+				tight!</alert
+			>
+
+			<alert class="my-4" type="success" v-if="csvImport.success"
+				>Done! We've imported your CSV file successfully.</alert
+			>
+
+			<entries
+				v-if="entries"
+				:data="entries"
+				@refresh="getData()"
+				:rebuild="rebuildList"
+			/>
 		</div>
 		<modal :show="entryInModal" @close="entryInModal = null">
 			<div>
@@ -47,21 +70,43 @@
 				/>
 			</div>
 		</modal>
+
+		<modal :show="showCsvImport" @close="showCsvImport = false">
+			<div>
+				<h2 class="font-bold text-black text-lg">
+					Import Balance Entries
+				</h2>
+				<csv-import
+					class="my-8"
+					v-if="showCsvImport"
+					@cancel="showCsvImport = false"
+					@success="handleCsvUploaded"
+				/>
+			</div>
+		</modal>
 	</div>
 </template>
 
 <script>
 import EntryManager from "@/managers/entry";
-import { AppHeader, AppButton, Modal, Spinner } from "@/components/common";
-import { Entries, EntryForm } from "@/components/entries";
+import {
+	Alert,
+	AppHeader,
+	AppButton,
+	Modal,
+	Spinner,
+} from "@/components/common";
+import { Entries, EntryForm, CsvImport } from "@/components/entries";
 export default {
 	components: {
+		Alert,
 		EntryForm,
 		AppHeader,
 		AppButton,
 		Entries,
 		Modal,
 		Spinner,
+		CsvImport,
 	},
 	data() {
 		return {
@@ -75,33 +120,80 @@ export default {
 				amount: 0,
 				cents: 0,
 			},
-			entries: [],
+			entries: null,
 			loading: true,
+			showCsvImport: false,
+			user: null,
+			rebuildList: true,
+			csvImport: {
+				rows: 0,
+				success: false,
+			},
+			page: 1,
 		};
 	},
 	methods: {
 		addNewEntry() {
 			this.entryInModal = this.emptyEntry;
 		},
-		async getData() {
+		async getData(paginate = false) {
+			if (!paginate) {
+				this.page = Math.min(this.page, 1);
+			}
 			this.loading = true;
 			this.entryInModal = null;
 			try {
-				const {
-					entries,
-					total,
-				} = await EntryManager.getDashboardData();
+				const { entries, total } = await EntryManager.getDashboardData(
+					this.page,
+				);
 				this.total = {
 					amount: total[0],
 					cents: total[1],
 				};
-				this.entries = entries;
+				this.rebuildList = !paginate;
+				this.entries = entries.data;
+				if (entries.next_page_url) {
+					this.page++;
+				} else {
+					this.page = 0;
+				}
 			} catch (e) {}
 			this.loading = false;
+		},
+		setUser(user) {
+			this.user = user;
+			Echo.channel(`u${this.user.id}-notifications`).listen(
+				"CsvProcessed",
+				this.onImportSuccess,
+			);
+		},
+		async onImportSuccess() {
+			await this.getData();
+			this.csvImport.rows = 0;
+			this.csvImport.success = true;
+			setTimeout(() => (this.csvImport.success = false), 10000);
+		},
+		handleCsvUploaded(imported_rows) {
+			this.csvImport.rows = imported_rows;
+			this.showCsvImport = false;
+		},
+		infiniteScroll() {
+			window.addEventListener("scroll", async e => {
+				if (this.loading || this.page < 1) {
+					return;
+				}
+				if (
+					window.innerHeight + window.scrollY >=
+					document.body.offsetHeight
+				) {
+					await this.getData(true);
+				}
+			});
 		},
 	},
 	async mounted() {
 		await this.getData();
+		this.infiniteScroll();
 	},
 };
 </script>

@@ -52,4 +52,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Entry::class);
     }
+
+    /**
+     * Return all user's csv imports
+     *
+     * @return HasMany
+     */
+    public function csvs(): HasMany
+    {
+        return $this->hasMany(ImportProcess::class);
+    }
 }

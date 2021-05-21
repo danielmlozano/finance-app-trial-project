@@ -4142,6 +4142,11 @@
   "resolved" "https://registry.npmjs.org/kind-of/-/kind-of-6.0.3.tgz"
   "version" "6.0.3"
 
+"laravel-echo@^1.10.0":
+  "integrity" "sha512-qshJkrzl34on1VYd8KqZhLxUdWJFPTL6cGSZ4lVQ4OZMN7FvI9Pt24PrOFL169I8IEDHjHX16jaIAIwCkdnDNA=="
+  "resolved" "https://registry.npmjs.org/laravel-echo/-/laravel-echo-1.10.0.tgz"
+  "version" "1.10.0"
+
 "laravel-mix@^5.0.1":
   "integrity" "sha512-1WCJiHimTRW3KlxcabRTco0q+bo4uKPaFTkc6cJ/bLEq4JT1aPkojoauUK7+PyiIlDJncw0Nt2MtDrv5C6j5IQ=="
   "resolved" "https://registry.npmjs.org/laravel-mix/-/laravel-mix-5.0.9.tgz"
@@ -5638,6 +5643,13 @@
     "postcss" "7.0.32"
     "postcss-selector-parser" "^6.0.2"
 
+"pusher-js@^7.0.3":
+  "integrity" "sha512-HIfCvt00CAqgO4W0BrdpPsDcAwy51rB6DN0VMC+JeVRRbo8mn3XTeUeIFjmmlRLZLX8rPhUtLRo7vPag6b8GCw=="
+  "resolved" "https://registry.npmjs.org/pusher-js/-/pusher-js-7.0.3.tgz"
+  "version" "7.0.3"
+  dependencies:
+    "tweetnacl" "^1.0.3"
+
 "q@^1.1.2":
   "integrity" "sha1-fjL3W0E4EpHQRhHxvxQQmsAGUdc="
   "resolved" "https://registry.npmjs.org/q/-/q-1.5.1.tgz"
@@ -6735,6 +6747,11 @@
   "integrity" "sha1-oVe6QC2iTpv5V/mqadUk7tQpAaY="
   "resolved" "https://registry.npmjs.org/tty-browserify/-/tty-browserify-0.0.0.tgz"
   "version" "0.0.0"
+
+"tweetnacl@^1.0.3":
+  "integrity" "sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw=="
+  "resolved" "https://registry.npmjs.org/tweetnacl/-/tweetnacl-1.0.3.tgz"
+  "version" "1.0.3"
 
 "type-is@~1.6.17", "type-is@~1.6.18":
   "integrity" "sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g=="

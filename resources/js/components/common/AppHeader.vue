@@ -51,6 +51,7 @@ export default {
 		async getUser() {
 			const response = await AccountManager.me();
 			this.user = response.user;
+			this.$emit("user", this.user);
 		},
 	},
 	async mounted() {

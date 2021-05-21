@@ -18,5 +18,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('account/me', [AccountController::class, 'me']);
+    Route::post('entries/import', [EntriesController::class, 'importCsv']);
     Route::resource('entries', EntriesController::class);
 });

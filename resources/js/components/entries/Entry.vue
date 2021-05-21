@@ -79,18 +79,21 @@ export default {
 		return {
 			editing: false,
 			deleting: false,
+			model: null,
 		};
 	},
 	methods: {
 		async deleteEntry() {
 			try {
 				await EntryManager.deleteEntry(this.data.id);
+				this.deleting = false;
 				this.$emit("refresh");
 			} catch (e) {
 				console.error(e);
 			}
 		},
-		updated() {
+		updated(model) {
+			this.model = model;
 			this.editing = false;
 			this.$emit("refresh");
 		},
@@ -105,6 +108,9 @@ export default {
 		EntryForm,
 		ConfirmationModal,
 		SecondaryButton,
+	},
+	mounted() {
+		this.model = { ...this.data };
 	},
 };
 </script>

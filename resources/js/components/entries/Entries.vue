@@ -1,9 +1,9 @@
 <template>
 	<div>
-		<div class="flex flex-col" v-if="entries.length > 0">
+		<div class="flex flex-col" v-if="entries.length > 0" id="entries">
 			<entry-group
-				v-for="group in entries"
-				:key="group.date"
+				v-for="(group, i) in entries"
+				:key="i"
 				:data="group"
 				@refresh="$emit('refresh')"
 			/>
@@ -26,6 +26,34 @@ export default {
 		data: {
 			required: true,
 		},
+		rebuild: {
+			required: true,
+		},
+	},
+	watch: {
+		data: {
+			deep: true,
+			handler(val) {
+				this.build(val);
+			},
+		},
+	},
+	methods: {
+		build(data = null) {
+			if (this.rebuild) {
+				this.entries = [];
+			}
+			data = data || this.data;
+			if (data) {
+				Object.entries(data).forEach(item => {
+					this.entries.push({
+						date: item[0],
+						subEntries: item[1].subentries,
+						subtotal: item[1].subtotal,
+					});
+				});
+			}
+		},
 	},
 	data() {
 		return {
@@ -33,15 +61,7 @@ export default {
 		};
 	},
 	created() {
-		if (this.data) {
-			Object.entries(this.data).forEach(item => {
-				this.entries.push({
-					date: item[0],
-					subEntries: item[1].subentries,
-					subtotal: item[1].subtotal,
-				});
-			});
-		}
+		this.build();
 	},
 };
 </script>
